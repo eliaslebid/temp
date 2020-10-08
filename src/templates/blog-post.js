@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet'
 import { graphql, Link } from 'gatsby'
 import Layout from '../components/Layout'
 import Content, { HTMLContent } from '../components/Content'
+import GridLayout from "react-grid-layout";
 
 export const BlogPostTemplate = ({
   content,
@@ -13,36 +14,36 @@ export const BlogPostTemplate = ({
   tags,
   title,
   helmet,
+  featuredImages,
+                                   onLayoutChange
 }) => {
-  const PostContent = contentComponent || Content
+
+  const seed = (index) => [
+    { i: `a${index}`, x: 0, y: 0, w: 8, h: 6 },
+  ];
+  const layout = Array.from({ length: featuredImages?.length }, (_, index) => seed(index)).flat()
 
   return (
-    <section className="section">
-      {helmet || ''}
-      <div className="container content">
-        <div className="columns">
-          <div className="column is-10 is-offset-1">
-            <h1 className="title is-size-2 has-text-weight-bold is-bold-light">
-              {title}
-            </h1>
-            <p>{description}</p>
-            <PostContent content={content} />
-            {tags && tags.length ? (
-              <div style={{ marginTop: `4rem` }}>
-                <h4>Tags</h4>
-                <ul className="taglist">
-                  {tags.map((tag) => (
-                    <li key={tag + `tag`}>
-                      <Link to={`/tags/${kebabCase(tag)}/`}>{tag}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
+    <GridLayout
+      className="layout"
+      onLayoutChange={onLayoutChange}
+      layout={layout}
+      cols={12}
+      rowHeight={30}
+      width={1200}
+    >
+      {
+        layout.map((x, index) => (
+          <div key={x.i}>
+            <img
+              alt={'test'}
+              style={{ height: "100%", width: "100%", objectFit: "cover" }}
+              src={featuredImages[index]}
+            />
           </div>
-        </div>
-      </div>
-    </section>
+        ))
+      }
+    </GridLayout>
   )
 }
 
@@ -56,7 +57,7 @@ BlogPostTemplate.propTypes = {
 
 const BlogPost = ({ data }) => {
   const { markdownRemark: post } = data
-
+  console.log('data!!!', data);
   return (
     <Layout>
       <BlogPostTemplate
